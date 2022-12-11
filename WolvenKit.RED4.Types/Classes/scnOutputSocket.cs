@@ -14,10 +14,10 @@ namespace WolvenKit.RED4.Types
 
 		[Ordinal(1)] 
 		[RED("destinations")] 
-		public CArray<scnInputSocketId> Destinations
+		public CArray<CHandle<scnInputSocketId>> Destinations
 		{
-			get => GetPropertyValue<CArray<scnInputSocketId>>();
-			set => SetPropertyValue<CArray<scnInputSocketId>>(value);
+			get => GetPropertyValue<CArray<CHandle<scnInputSocketId>>>();
+			set => SetPropertyValue<CArray<CHandle<scnInputSocketId>>>(value);
 		}
 
 		public scnOutputSocket()

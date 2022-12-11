@@ -22,10 +22,10 @@ namespace WolvenKit.RED4.Types
 
 		[Ordinal(2)] 
 		[RED("outputSockets")] 
-		public CArray<scnOutputSocket> OutputSockets
+		public CArray<CHandle<scnOutputSocket>> OutputSockets
 		{
-			get => GetPropertyValue<CArray<scnOutputSocket>>();
-			set => SetPropertyValue<CArray<scnOutputSocket>>(value);
+			get => GetPropertyValue<CArray<CHandle<scnOutputSocket>>>();
+			set => SetPropertyValue<CArray<CHandle<scnOutputSocket>>>(value);
 		}
 
 		public scnSceneGraphNode()

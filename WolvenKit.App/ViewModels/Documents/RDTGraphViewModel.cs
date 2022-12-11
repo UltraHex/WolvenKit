@@ -85,11 +85,33 @@ namespace WolvenKit.ViewModels.Documents
         public GeometryGraph RenderNodes(CArray<CHandle<scnSceneGraphNode>> nodes)
         {
             var graph = new GeometryGraph();
+            var nodeIds = new Dictionary<scnNodeId, CHandle<scnSceneGraphNode>>();
+            var msaglNodes = new Dictionary<int, Node>();
 
-            //foreach (var node in nodes)
-            //{
-            //    node.Chunk.OutputSockets
-            //}
+            foreach (var node in nodes)
+            {
+                nodeIds.Add(node.Chunk.NodeId, node);
+
+                NodeViewModel nvm = new NodeViewModel(this, node.Chunk);
+                
+                SocketViewModel input = new SocketViewModel();
+                input.Title = "in";
+                nvm.Inputs.Add(input);
+                
+                var size = nvm.GetSize();
+                var msaglNode = new Node(CurveFactory.CreateRectangle(size.Width, size.Height, new Microsoft.Msagl.Core.Geometry.Point()))
+                {
+                    UserData = node.Chunk.GetHashCode()
+                };
+                msaglNodes.Add(node.Chunk.GetHashCode(), msaglNode);
+            }
+
+            foreach (var node in nodes)
+            {
+                // foreach (var destination in node.Chunk.OutputSockets)
+            }
+
+            // NodeLookup.Add();
 
             return graph;
         }
@@ -98,7 +120,7 @@ namespace WolvenKit.ViewModels.Documents
         {
             var graph = new GeometryGraph();
             var connections = new Dictionary<int, graphGraphConnectionDefinition>();
-            var msaglNodes = new Dictionary<int, Microsoft.Msagl.Core.Layout.Node>();
+            var msaglNodes = new Dictionary<int, Node>();
             var socketNodeLookup = new Dictionary<int, int>();
             foreach (var node in nodes)
             {
@@ -160,7 +182,7 @@ namespace WolvenKit.ViewModels.Documents
                 }
                 NodeLookup.Add(node.Chunk.GetHashCode(), nvm);
                 var size = nvm.GetSize();
-                var msaglNode = new Microsoft.Msagl.Core.Layout.Node(
+                var msaglNode = new Node(
                     CurveFactory.CreateRectangle(size.Width, size.Height, new Microsoft.Msagl.Core.Geometry.Point()))
                 {
                     UserData = node.Chunk.GetHashCode()
@@ -318,6 +340,11 @@ namespace WolvenKit.ViewModels.Documents
             return size;
         }
 
+        private void setupNode(scnSceneGraphNode node)
+        {
+            // TODO
+        }
+
         private void SetupNode(graphGraphNodeDefinition node)
         {
             if (node is questInputNodeDefinition qind)
@@ -427,6 +454,26 @@ namespace WolvenKit.ViewModels.Documents
             if (node is questNodeDefinition qnd)
             {
                 Footer += $" [{qnd.Id}]";
+            }
+        }
+
+        public NodeViewModel(RDTGraphViewModel graph, scnSceneGraphNode node) : this()
+        {
+            Graph = graph;
+
+            setupNode(node);
+
+            {
+                var svm = new SocketViewModel { Title = "in" };
+            }
+
+            foreach(var socket in node.OutputSockets.OrderBy(s => s.Chunk.Stamp.Ordinal).ThenBy(s => s.Chunk.Stamp.Name))
+            {
+                var svm = new SocketViewModel(socket.Chunk);
+
+                Outputs.Add(svm);
+
+                Graph.SocketLookup.Add(socket.Chunk.GetHashCode(), svm);
             }
         }
 
@@ -563,6 +610,8 @@ namespace WolvenKit.ViewModels.Documents
                 }
             };
         }
+
+        public SocketViewModel(scnOutputSocket socket) : this() => Title = socket.Stamp.Name.ToString();
 
         public SocketViewModel(graphGraphSocketDefinition socket) : this() => Title = socket.Name;
 
